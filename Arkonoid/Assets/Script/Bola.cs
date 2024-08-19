@@ -4,39 +4,41 @@ using UnityEngine;
 
 public class Bola : MonoBehaviour
 {
-    public float speed = 8f;
-    private Rigidbody2D rb;
+    public float speed;
+    int directionX = 1;
+    int directionY = 1;
 
-    private void Start()
+
+    Rigidbody2D body;
+    // Start is called before the first frame update
+    void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        rb.velocity = new Vector2(speed, speed);
-
+        body = GetComponent<Rigidbody2D>();
     }
 
-    private void Update()
+    // Update is called once per frame
+    void Update()
     {
-
-        Vector2 screenPosition = Camera.main.WorldToViewportPoint(transform.position);
-        if (screenPosition.x < 0 || screenPosition.x > 1 || screenPosition.y < 0 || screenPosition.y > 1)
-        {
-            Destroy(gameObject);
-        }
+        body.velocity = new Vector2(speed * directionX, speed * directionY);
     }
-
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Enemy"))
+        if (!collision.gameObject.CompareTag("Ground"))
         {
-
-            Destroy(collision.gameObject);
-            Destroy(gameObject);
+            directionX *= -1;
         }
-        else
+        if (!collision.gameObject.CompareTag("Parede"))
         {
-
-            Vector2 reflectDir = Vector2.Reflect(rb.velocity, collision.contacts[0].normal);
-            rb.velocity = reflectDir.normalized * speed;
+            directionY *= -1;
         }
     }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (!collision.gameObject.CompareTag("Tijolo"))
+        {
+            directionX *= -1;
+            Destroy(collision.gameObject);//Esse destroi o inimigo
+        }
+    }
+
 }
